@@ -1,0 +1,26 @@
+name: Upload dotnet package
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0.x' # SDK Version to use.
+          source-url: https://packages.dimensional.com/<owner>/index.json
+        env:
+          NUGET_AUTH_TOKEN: 34ea88f8-716b-32a4-af64-b6b4501e08d7
+      - run: dotnet build --configuration Release <my project>
+      - name: Create the package
+        run: dotnet pack --configuration Release <my project>
+      - name: Publish the package to GPR
+        run: dotnet nuget push <my project>/bin/Release/*.nupkg
+      
